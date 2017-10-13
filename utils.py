@@ -20,41 +20,6 @@ def n_choose_k(n, k):
 
     return num // den
 
-def distinct_permutations(l):
-    c = Counter(l)
-    vs = c.values()
-    permutations = math.factorial(sum(vs))
-    return reduce(lambda perms, v: perms // math.factorial(v), vs, permutations)
-    
-
-def naive_prime_check(n):
-    if (n % 2 == 0) and n != 2:
-        return False
-
-    for i in range(3, int(n ** 0.5) + 1, 2):
-        if (n % i) == 0:
-            return False
-
-    return True
-
-def prime_factor_field(n):
-    prime_factors = [[] for i in xrange(n+1)]
-    prime_factors[1] = [1]
-    for i in xrange(2,n):
-        if len(prime_factors[i]) == 0:
-            v = i
-            l = [i]
-            while v < n:
-                for x in xrange(1, (n // v) + 1):
-                    if (x % i == 0):
-                        continue
-                    prime_factors[x*v].extend(l)
-
-                v *= i
-                l += [i]
-
-    return prime_factors
-
 def phi_from_prime_factors(n, factors):
     numerator, denominator = n, 1
     for pf in factors:
@@ -83,130 +48,6 @@ def phi_field_direct(n):
                 phi[i*j] = f * phi[q]
 
     return phi
-
-def multiplicities_from_prime_divisors(n, prime_factors):
-    multiples = []
-    for pf in prime_factors:
-        n0 = n
-        m = 0
-
-        while (n0 % pf) == 0:
-            n0 /= pf
-            m += 1
-
-        multiples.append((pf, m))
-
-    return multiples
-
-def divisor_gen(n, factors):
-    nfactors = len(factors)
-    f = [0] * nfactors
-    while True:
-        yield reduce(lambda x, y: x*y, [factors[x][0]**f[x] for x in range(nfactors)], 1)
-        i = 0
-        while True:
-            f[i] += 1
-            if f[i] <= factors[i][1]:
-                break
-            f[i] = 0
-            i += 1
-            if i >= nfactors:
-                return
-
-def split_set_generator(s):
-    l = len(s)
-
-    if (l % 2) == 0:
-        for i in range(1, l / 2):
-            for first_tuple in combinations(s, i):
-                first_set = set(first_tuple)
-                second_set = s - first_set
-                yield first_set, second_set
-
-        for first_tuple in combinations(s, l / 2):
-            first_set = set(first_tuple)
-            second_set = s - first_set
-            if first_tuple > tuple(second_set):
-                return
-
-            yield first_set, second_set
-
-    else:
-        for i in range(1, l / 2 + 1):
-            for first_tuple in combinations(s, i):
-                first_set = set(first_tuple)
-                second_set = s - first_set
-                yield first_set, second_set
-
-def square_root_cf(n):
-    root = n ** 0.5
-    m = int(root)
-
-    if m * m == n:
-        return None
-
-    first = m
-    rest = []
-
-    y0, y1, y2 = 1, m, n - m*m
-    seen = set()
-
-    while True:
-        val = (y0 * root + y1) / y2
-        m = int(val)
-        y0, y1, y2 = y2*y0, y2*(m*y2-y1), y0*y0*n - (m*y2 - y1) * (m*y2 - y1)
-        g = gcd(y0, gcd(y1, y2))
-        y0, y1, y2 = y0/g, y1/g, y2/g
-
-        if (y0, y1, y2) in seen:
-            return first, rest
-        else:
-            rest.append(m)
-            seen.add((y0,y1,y2))
-
-def square_root_representation(n):
-    root = n ** 0.5
-    m = int(root)
-
-    if m * m == n:
-        return None
-
-    first = m
-    rest = []
-
-    y0, y1, y2 = 1, m, n - m*m
-    seen = set()
-
-    while True:
-        val = (y0 * root + y1) / y2
-        m = int(val)
-        y0, y1, y2 = y2*y0, y2*(m*y2-y1), y0*y0*n - (m*y2 - y1) * (m*y2 - y1)
-        g = gcd(y0, gcd(y1, y2))
-        y0, y1, y2 = y0/g, y1/g, y2/g
-
-        if (y0, y1, y2) in seen:
-            return first, rest
-        else:
-            rest.append(m)
-            seen.add((y0,y1,y2))
-
-def square_root_convergents(n):
-    h, hnm1 = 1, 0
-    k, knm1 = 0, 1
-
-    first, repeating = square_root_representation(n)
-    h, hnm1 = first * h + hnm1, h
-    k, knm1 = first * k + knm1, k
-
-    yield (h, k)
-
-    repeating = cycle(repeating)
-    
-    i = 0
-    for a in repeating:
-        h, hnm1 = a * h + hnm1, h
-        k, knm1 = a * k + knm1, k
-        yield (h,k)
 
 # sqrt(2) convergents:
 # 1/1, 3/2, 7/5, 17/12, 41/29
@@ -246,7 +87,6 @@ def ncr(n, r):
 
     return numer//denom
 
-
 def isqrt(n):
     x = n
     y = (x + 1) // 2
@@ -254,14 +94,6 @@ def isqrt(n):
         x = y
         y = (x + n // x) // 2
     return x
-
-def primes_below(n):
-    """ Returns  a list of primes < n """
-    sieve = [True] * (n/2)
-    for i in xrange(3,int(n**0.5)+1,2):
-        if sieve[i/2]:
-            sieve[i*i/2::i] = [False] * ((n-i*i-1)/(2*i)+1)
-    return [2] + [2*i+1 for i in xrange(1,n/2) if sieve[i]]
 
 def palindromes_of_length(n):
     pals = range(1,10)
@@ -312,27 +144,6 @@ def my_gcd(a,b):
  
         return b
 
-def cheese_factor_list(lst):
-    factors = {}
-
-    for i in range(0, len(lst), 10000):
-        print("Batching with {}".format(i))
-
-        output = factor(*lst[i:i+10000]).stdout
-        for line in output.split('\n')[:-1]:
-            n = int(line.split(":")[0])
-            n_factors = map(int, line.split(' ')[1:])
-
-            c = Counter(n_factors)
-            factors[n] = [(p, c[p]) for p in c]
-
-    return factors
- 
-def cheese_factor(n):
-    output = factor(n).stdout
-    factors = output[output.find(':')+1:].split()
-    return map(int, factors)
-
 def phi_sieve(n):
     field = [0] * (n + 1)
     field[1] = 1;
@@ -368,12 +179,3 @@ def nth_fibonacci(n, mod=None):
     Q = matrix_pow(m, n, mod)
 
     return Q[(0,1)]
-
-def list_powerset(lst):
-    result = [[]]
-    for x in lst:
-        result.extend([subset + [x] for subset in result])
-    return result
-
-def powerset(s):
-    return frozenset(map(frozenset, list_powerset(list(s))))
