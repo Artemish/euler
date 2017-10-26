@@ -1,3 +1,19 @@
+from sh import factor, primes
+from collections import Counter
+
+def is_fermat_pseudoprime(n):
+    if n in [2,3,4,5,7,11,13,17,19]:
+        return True
+
+    if any([(n % i) == 0 for i in [2,3,5,7]]):
+        return False
+
+    for a in [2,3,5,7,11,13,17,19]:
+        if pow(a, n-1, n) != 1:
+            return False
+
+    return True
+
 def cheese_factor_list(lst):
     factors = {}
 
@@ -18,6 +34,10 @@ def cheese_factor(n):
     output = factor(n).stdout
     factors = output[output.find(':')+1:].split()
     return map(int, factors)
+
+def cheese_primes_below(n):
+    output = primes(2,n)
+    return map(int, output.split())
 
 def multiplicities_from_prime_divisors(n, prime_factors):
     multiples = []
