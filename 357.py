@@ -1,32 +1,26 @@
 #!/usr/bin/env python3
-import utils
+from utils import primes_below
 
 TOP = 100000000
-divisor_field = utils.fast_divisor_field(TOP+1)
 
 total = 0
 
-def is_prime(n):
-    return len(divisor_field[n]) == 0
+primes = primes_below(TOP*1.6)
+prime_set = set(primes)
 
-def is_prime_generating(n, factors, acc):
-    if len(factors) == 0:
-        return True
+vals = [True] * (TOP + 1)
 
-    head, tail = factors[0], factors[1:]
+for p in primes:
+    if 2*p > TOP:
+        break
 
-    fac = head * acc
+    print(p)
+    vals[p] = False
+    for i in range(2,(TOP//p)+1):
+        if i + p not in prime_set:
+            vals[i*p] = False
 
-    n_fac = n / fac
+v = set([i for i in range(1,TOP+1) if vals[i]])
+v2 = set(map(lambda x: x-1, prime_set))
 
-    return is_prime(fac + n_fac) and is_prime_generating(n, tail, fac) and is_prime_generating(n, tail, acc)
-
-for i in range(2, TOP+1):
-    if (i % 2) == 1:
-        continue
-
-    multiples = utils.multiplicities_from_prime_divisors(i, divisor_field[i])
-
-    if is_prime_generating(i, multiples, 1):
-        print(str(i) + " is prime generating")
-        total += i
+print(sum(v & v2))
